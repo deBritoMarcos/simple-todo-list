@@ -1,0 +1,11 @@
+services:
+  app:
+    build: .
+    container_name: vite-react-ts
+    working_dir: /app
+    volumes:
+      - ./:/app
+    ports:
+      - "5173:5173"
+    stdin_open: true
+    tty: true

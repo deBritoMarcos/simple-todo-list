@@ -1,38 +1,41 @@
 import style from "./TaskList.module.css";
 
 import type { ITask } from "../interface/Task";
+import { TaskItem } from "./TaskItem";
 
-interface Props {
+interface TaskListProps {
     taskList: ITask[];
-    handleDelete(id: number): void;
-    handleEdit(task: ITask): void;
+    onDelete: (id: number) => void;
+    onEdit: (task: ITask) => void;
 }
 
-const TaskList = ({taskList, handleDelete, handleEdit}: Props) => {
-  return (
-    <>
-        {taskList.length > 0 ? (
-            taskList.map((task) => (
-                <div key={task.id} className={style.task}>
-                    <div className={style.details}>
-                        <h4>{task.title}</h4>
-                        <p>{task.difficulty}</p>
-                    </div>
-                    <div className={style.actions}>
-                        <button onClick={() => handleEdit(task)}>
-                            <i className="bi bi-pencil"></i>                           
-                        </button>  
-                         <button onClick={() => handleDelete(task.id)}>
-                            <i className="bi bi-trash"></i>                         
-                        </button>
-                    </div>
+const TaskList = ({ taskList, onDelete, onEdit }: TaskListProps) => {
+    
+    const isEmpty = taskList.length === 0;
+
+    return (
+        <div
+            role="region"
+            aria-label="Lista de tarefas"
+            aria-live="polite"
+            aria-busy={false}
+        >
+            {isEmpty ? (
+                <p className={style.empty_message}>Não há tarefas cadastradas</p>
+            ) : (
+                <div className={style.task_list}>
+                    {taskList.map((task) => (
+                        <TaskItem
+                            key={task.id}
+                            task={task}
+                            onEdit={onEdit}
+                            onDelete={onDelete}
+                        />
+                    ))}
                 </div>
-            ))
-        ) : (
-            <p>Não há tarefas cadastradas</p>
-        )}
-    </>
-  )
-}
+            )}
+        </div>
+    );
+};
 
-export default TaskList
+export default TaskList;

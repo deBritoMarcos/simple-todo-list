@@ -1,27 +1,55 @@
-import React from 'react'
+import React, { useRef, useEffect } from 'react';
+import style from './Modal.module.css';
 
-import style from './Modal.module.css'
-
-type Props = {
-  children: React.ReactNode
+interface ModalProps {
+  isOpen: boolean;
+  title: string;
+  onClose: () => void;
+  children: React.ReactNode;
 }
 
-const Modal = ({children}: Props) => {
-  
-  const closeModal = (e: React.MouseEvent): void => {
-    const modal = document.querySelector("#modal");
-    modal!.classList.add("hide");
-  }
+export const Modal = ({ isOpen, title, onClose, children }: ModalProps) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen, onClose]);
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === modalRef.current) {
+      onClose();
+    }
+  };
+
+  if (!isOpen) return null;
 
   return (
-    <div id='modal' className='hide'>
-        <div className={style.fade} onClick={closeModal}></div>
-        <div className={style.modal}>
-            <h2>Texto Modal</h2>
-            {children}
-        </div>
+    <div
+      ref={modalRef}
+      className={style.backdrop}
+      onClick={handleBackdropClick}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+    >
+      <div className={style.modal}>
+        <h2 id="modal-title">{title}</h2>
+        {children}
+      </div>
     </div>
-  )
-}
-
-export default Modal
+  );
+};

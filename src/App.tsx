@@ -1,65 +1,64 @@
 import { useState } from 'react';
-
 import './App.css';
 
-import Footer from './components/Footer';
 import Header from './components/Header';
+import Footer from './components/Footer';
 import TaskForm from './components/TaskForm';
 import TaskList from './components/TaskList';
-import Modal from './components/Modal';
+import { Modal } from './components/Modal';
 
-import type { ITask } from './interface/Task';
+import { useTaskManager } from './hooks/useTaskManager';
 
 function App() {
-  const [taskList, setTaskList] = useState<ITask[]>([]);
-  
-  const [taskToUpdate, setTaskToUpdate] = useState<ITask|null>(null);
+  const { taskList, taskToUpdate, setTaskToUpdate, addTask, deleteTask, updateTask } =
+    useTaskManager();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const deleteTask = (id: number) => {
-    setTaskList(
-      taskList.filter((task) => {
-        return task.id !== id;
-      })
-    )
-  }
-
-  const hideOrShowModal = (display: boolean) => {
-    const modal = document.querySelector("#modal");
-
-    if (display) {
-      modal!.classList.remove("hide")
-    } else {
-      modal!.classList.add("hide")
-    }
-  }
-
-  const editTask = (task: ITask): void => {
-    console.log("metodo acionado");
-    hideOrShowModal(true);
-    setTaskToUpdate(task)
-  }
+  const handleEditTask = (task: ITask) => {
+    setTaskToUpdate(task);
+    setIsModalOpen(true);
+  };
 
   return (
     <>
-      <Modal children={<TaskForm taskList={taskList} task={taskToUpdate}/>}></Modal>
+      <Modal
+        isOpen={isModalOpen}
+        title="Editar Tarefa"
+        onClose={() => {
+          setTaskToUpdate(null);
+          setIsModalOpen(false);
+        }}
+      >
+        <TaskForm
+          initialTask={taskToUpdate}
+          onSubmit={(task) => {
+            taskToUpdate ? updateTask({ ...taskToUpdate, ...task }) : addTask(task);
+            setIsModalOpen(false);
+          }}
+        />
+      </Modal>
 
-      <Header></Header>
-      
-      <main className='main'>
+      <Header />
+
+      <main className="main">
         <div>
           <h2>O que você precisa fazer?</h2>
-          <TaskForm taskList={taskList} setTaskList={setTaskList} ></TaskForm>
+          <TaskForm onSubmit={addTask} />
         </div>
 
         <div>
           <h2>Lista de Tarefas:</h2>
-          <TaskList taskList={taskList} handleDelete={deleteTask} handleEdit={editTask}></TaskList>
+          <TaskList
+            taskList={taskList}
+            onDelete={deleteTask}
+            onEdit={handleEditTask}
+          />
         </div>
       </main>
 
-      <Footer></Footer>
+      <Footer />
     </>
-  )
+  );
 }
 
-export default App
+export default App;

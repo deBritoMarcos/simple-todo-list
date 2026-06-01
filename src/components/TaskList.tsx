@@ -5,9 +5,10 @@ import type { ITask } from "../interface/Task";
 interface Props {
     taskList: ITask[];
     handleDelete(id: number): void;
+    handleEdit(task: ITask): void;
 }
 
-const TaskList = ({taskList, handleDelete}: Props) => {
+const TaskList = ({taskList, handleDelete, handleEdit}: Props) => {
   return (
     <>
         {taskList.length > 0 ? (
@@ -18,7 +19,7 @@ const TaskList = ({taskList, handleDelete}: Props) => {
                         <p>{task.difficulty}</p>
                     </div>
                     <div className={style.actions}>
-                        <button>
+                        <button onClick={() => handleEdit(task)}>
                             <i className="bi bi-pencil"></i>                           
                         </button>  
                          <button onClick={() => handleDelete(task.id)}>
